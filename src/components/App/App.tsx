@@ -44,9 +44,9 @@ function App() {
 
   const [ count, setCount ] = React.useState(0);
   React.useEffect(() => {
-    setInterval(() => {
+   /*  setInterval(() => {
       setCount(prev => prev + 1);
-    }, 1000);
+    }, 1000); */
   }, []);
 
   console.log('render');
