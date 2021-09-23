@@ -1,0 +1,14 @@
+
+.MusicElemForm label {
+  display: block;
+  margin-bottom: 20px;
+}
+
+
+.MusicElemForm input {
+  display: block;
+}
+
+.MusicElemForm__error {
+  color: red;
+}
