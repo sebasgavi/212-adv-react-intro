@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { MusicElemProps } from '../MusicElem/MusicElem';
 import './MusicElemForm.css';
 
 interface MusicElemFormProps {
-  onCreate: (newMusicElem: MusicElemProps) => void; // evento propia que se dispara al crear un elemento
+  type: 'create'|'edit';
+  onCreate: (newMusicElem: { title: string, img: string }) => void; // evento propia que se dispara al crear un elemento
 }
 
-const MusicElemForm: React.FC<MusicElemFormProps> = ({ onCreate }) => {
+const MusicElemForm: React.FC<MusicElemFormProps> = ({ type, onCreate }) => {
 
   // estado para guardar si el usuario ya intentó enviar el formulario, por defecto es falso
   const [ formSubmitted, setFormSubmitted ] = React.useState(false);
@@ -58,7 +58,7 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ onCreate }) => {
   return (<form className="MusicElemForm"
     onSubmit={handleSubmit}>
 
-    <h2>Create MusicElem</h2>
+    <h2>{type === 'create' ? 'New' : 'Edit'} MusicElem</h2>
 
     <label>
       Title
@@ -71,7 +71,7 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ onCreate }) => {
       }
     </label>
 
-    <label>
+    {type === 'create' && <label>
       Image URL
       <input type="text"
         onChange={handleUrlChange}
@@ -79,7 +79,7 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ onCreate }) => {
       {(formSubmitted && !isUrlValid) &&
         <p className="MusicElemForm__error">The URL must be at least 10 characters long</p>
       }
-    </label>
+    </label>}
 
     <label>
       Subscribers Count
@@ -92,7 +92,7 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ onCreate }) => {
     </label>
 
     <button>
-      Create
+      {type === 'create' ? 'Create new MusicElem' : 'Save changes'}
     </button>
 
   </form>);

@@ -4,22 +4,30 @@ import { Link } from '../Link/Link';
 import MusicElem, { MusicElemProps } from '../MusicElem/MusicElem';
 import MusicElemForm from '../MusicElemForm/MusicElemForm';
 
-type MusicElemObj = MusicElemProps & {
+type MusicElemObj = {
+  img: string;
+  title: string;
   id: number;
 }
 
 function App() {
 
-  const [ musicElems, setMusicElems ] = React.useState<MusicElemObj[]>([]);
+  const [ musicElems, setMusicElems ] = React.useState<MusicElemObj[]>([
+    {
+      id: 0,
+      img: 'adasdas',
+      title: 'Nuevo elemento'
+    },
+  ]);
 
-  const handleCreate = (newMusicElem: MusicElemProps) => {
+  const handleCreate = (newMusicElem: { img: string, title: string }) => {
     console.log('nuevo elemento!', newMusicElem);
 
     const arrayCopy = musicElems.slice(); // crear una copia del arreglo
     arrayCopy.push({ // agregamos el nuevo elemento con la información recibida
       id: Math.random(),
       img: newMusicElem.img,
-      title: newMusicElem.title
+      title: newMusicElem.title,
     });
 
     // creamos un nuevo arreglo
@@ -32,6 +40,22 @@ function App() {
       }
     ];
     setMusicElems(arrayCopy);
+  }
+
+  const handleDelete = (deleteId: number) => {
+    console.log('delete')
+    /* const musicElemsCopy = musicElems.slice(); // creamos la copia
+    musicElemsCopy.splice(0, 1); // modificamos la copia, el original sigue igual
+    setMusicElems(musicElemsCopy); // seteamos el estado con la copia */
+
+    const musicElemsCopy = musicElems.filter((elem) => {
+      if(elem.id === deleteId) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+    setMusicElems(musicElemsCopy);
   }
 
   return (
@@ -54,10 +78,19 @@ function App() {
           url="https://reactjs.org/community/support.html"></Link>
       </nav>
 
-      <MusicElemForm onCreate={handleCreate} />
+      <MusicElemForm
+        type="create"
+        onCreate={handleCreate}
+      />
 
       {musicElems.map((elem) => {
-        return <MusicElem key={elem.id} title={elem.title} img="" />;
+        return <MusicElem
+          key={elem.id}
+          id={elem.id}
+          title={elem.title}
+          img=""
+          onDelete={handleDelete}
+        />;
       })}
     </div>
   );
