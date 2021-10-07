@@ -1,12 +1,16 @@
 import * as React from 'react';
+import { useHistory } from 'react-router';
 import './MusicElemForm.css';
 
 interface MusicElemFormProps {
+  editId: number|null;
   type: 'create'|'edit';
-  onCreate: (newMusicElem: { title: string, img: string }) => void; // evento propia que se dispara al crear un elemento
+  onCreate: (newMusicElem: { title: string, img: string }) => void; // evento propio que se dispara al crear un elemento
+  onEdit: (id: number, editMusicElem: { title: string }) => void; // evento propio que se dispara al crear un elemento
 }
 
-const MusicElemForm: React.FC<MusicElemFormProps> = ({ type, onCreate }) => {
+const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, onEdit }) => {
+  const history = useHistory();
 
   // estado para guardar si el usuario ya intentó enviar el formulario, por defecto es falso
   const [ formSubmitted, setFormSubmitted ] = React.useState(false);
@@ -43,13 +47,20 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ type, onCreate }) => {
     event.preventDefault();
     setFormSubmitted(true); // si el usuario intenta enviar el formulario, el booleano pasa a true
     // condición para saber si todos los campos son válidos
-    if(isTitleValid && isUrlValid) {
+    if(type === 'create' && isTitleValid && isUrlValid) {
       console.log('valid');
       // si el formulario es válido, llamamos al evento onCreate
       onCreate({
         img: url,
         title: title
       });
+      setTitle('');
+      setUrl('');
+      setSubscribers('');
+      setFormSubmitted(false);
+      history.push('/list');
+    } else if (type === 'edit' && isTitleValid) {
+      onEdit(editId!, { title: title });
     } else {
       console.log('invalid');
     }
@@ -58,7 +69,7 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ type, onCreate }) => {
   return (<form className="MusicElemForm"
     onSubmit={handleSubmit}>
 
-    <h2>{type === 'create' ? 'New' : 'Edit'} MusicElem</h2>
+    <h2>{type === 'create' ? 'New' : 'Edit'} MusicElem {editId}</h2>
 
     <label>
       Title

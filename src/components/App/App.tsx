@@ -3,6 +3,7 @@ import './App.css';
 import { Link } from '../Link/Link';
 import MusicElem, { MusicElemProps } from '../MusicElem/MusicElem';
 import MusicElemForm from '../MusicElemForm/MusicElemForm';
+import { HashRouter, Route } from 'react-router-dom';
 
 type MusicElemObj = {
   img: string;
@@ -11,6 +12,9 @@ type MusicElemObj = {
 }
 
 function App() {
+
+  const [ formType, setFormType ] = React.useState<'create' | 'edit'>('create');
+  const [ editId, setEditId ] = React.useState<number|null>(null);
 
   const [ musicElems, setMusicElems ] = React.useState<MusicElemObj[]>([
     {
@@ -31,15 +35,44 @@ function App() {
     });
 
     // creamos un nuevo arreglo
-    const newArray = [
+    /* const newArray = [
       ...musicElems, // ponemos todos los elementos que ya existían
       { // agregamos el nuevo elemento con la información recibida
         id: Math.random(),
         img: newMusicElem.img,
         title: newMusicElem.title
       }
-    ];
+    ]; */
     setMusicElems(arrayCopy);
+  }
+
+  const handleBeginEdit = (editId: number) => {
+    setEditId(editId);
+    setFormType('edit');
+  }
+
+  const handleEdit = (editId: number, editMusicElem: { title: string }) => {
+    console.log(editId, editMusicElem);
+
+    const musicElemsCopy = musicElems.slice();
+    const editIndex = musicElems.findIndex((elem) => {
+      if(elem.id === editId) {
+        return true;
+      }
+      return false;
+    });
+
+    /* musicElemsCopy[editIndex] = {
+      id: musicElems[editIndex].id,
+      img: musicElems[editIndex].img,
+      title: editMusicElem.title,
+    } */
+    musicElemsCopy[editIndex] = {
+      ...musicElems[editIndex],
+      ...editMusicElem,
+    }
+
+    setMusicElems(musicElemsCopy);
   }
 
   const handleDelete = (deleteId: number) => {
@@ -59,40 +92,42 @@ function App() {
   }
 
   return (
-    <div>
-      <h2>Hola desde App</h2>
+    <HashRouter>
+      <div>
+        <h2>Hola desde App</h2>
 
-      <nav className="App__nav">
-        <Link
-          text="Docs"
-          url="https://reactjs.org/docs/getting-started.html"
-          active />
-        <Link
-          text="Tutorial"
-          url="https://reactjs.org/tutorial/tutorial.html"></Link>
-        <Link
-          text="Blog"
-          url="https://reactjs.org/blog/"></Link>
-        <Link
-          text="Community"
-          url="https://reactjs.org/community/support.html"></Link>
-      </nav>
+        <nav className="App__nav">
+          <Link
+            text="Form"
+            url="/form" />
+          <Link
+            text="List"
+            url="/list"></Link>
+        </nav>
 
-      <MusicElemForm
-        type="create"
-        onCreate={handleCreate}
-      />
+        <Route path="/form">
+          <MusicElemForm
+            editId={editId}
+            type={formType}
+            onCreate={handleCreate}
+            onEdit={handleEdit}
+          />
+        </Route>
 
-      {musicElems.map((elem) => {
-        return <MusicElem
-          key={elem.id}
-          id={elem.id}
-          title={elem.title}
-          img=""
-          onDelete={handleDelete}
-        />;
-      })}
-    </div>
+        <Route path="/list">
+          {musicElems.map((elem) => {
+            return <MusicElem
+              key={elem.id}
+              id={elem.id}
+              title={elem.title}
+              img=""
+              onDelete={handleDelete}
+              onEdit={handleBeginEdit}
+            />;
+          })}
+        </Route>
+      </div>
+    </HashRouter>
   );
 }
 

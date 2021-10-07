@@ -6,9 +6,10 @@ export interface MusicElemProps {
   img: string;
   title: string;
   onDelete: (id: number) => void;
+  onEdit: (id: number) => void;
 }
 
-const MusicElem: React.FC<MusicElemProps> = ({ id, img, title, onDelete }) => {
+const MusicElem: React.FC<MusicElemProps> = ({ id, img, title, onDelete, onEdit }) => {
   // const { img, title } = props;
 
   // const img = props.img;
@@ -26,10 +27,15 @@ const MusicElem: React.FC<MusicElemProps> = ({ id, img, title, onDelete }) => {
     onDelete(id);
   }
 
+  const handleEdit: React.MouseEventHandler<HTMLButtonElement> = () => {
+    onEdit(id);
+  }
+
   return (<article className="MusicElem"
     style={styles}>
     <h2>{title}</h2>
     <button onClick={handleDelete}>delete</button>
+    <button onClick={handleEdit}>edit</button>
   </article>);
 }
 
