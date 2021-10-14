@@ -3,13 +3,11 @@ import './App.css';
 import { Link } from '../Link/Link';
 import MusicElem, { MusicElemProps } from '../MusicElem/MusicElem';
 import MusicElemForm from '../MusicElemForm/MusicElemForm';
-import { HashRouter, Route } from 'react-router-dom';
-
-type MusicElemObj = {
-  img: string;
-  title: string;
-  id: number;
-}
+import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
+import MusicElemDetails from '../MusicElemDetails/MusicElemDetails';
+import Page404 from '../Page404/Page404';
+import { MusicElemObj } from '../../types/MusicElemObj';
+import { SongElemObj } from '../../types/SongElemObj';
 
 function App() {
 
@@ -20,7 +18,14 @@ function App() {
     {
       id: 0,
       img: 'adasdas',
-      title: 'Nuevo elemento'
+      title: 'Nuevo elemento',
+      songs: [
+        {
+          id: 0,
+          title: 'La gran canción',
+          duration: 10,
+        }
+      ]
     },
   ]);
 
@@ -32,6 +37,7 @@ function App() {
       id: Math.random(),
       img: newMusicElem.img,
       title: newMusicElem.title,
+      songs: [],
     });
 
     // creamos un nuevo arreglo
@@ -91,6 +97,27 @@ function App() {
     setMusicElems(musicElemsCopy);
   }
 
+  const handleCreateSong = (musicElemId: number, newSongElem: SongElemObj) => {
+
+    const musicElemsCopy = musicElems.slice();
+    const editIndex = musicElems.findIndex((elem) => {
+      if(elem.id === musicElemId) {
+        return true;
+      }
+      return false;
+    });
+
+    musicElemsCopy[editIndex] = {
+      ...musicElems[editIndex],
+      songs: [
+        ...musicElems[editIndex].songs,
+        newSongElem
+      ]
+    }
+
+    setMusicElems(musicElemsCopy);
+  }
+
   return (
     <HashRouter>
       <div>
@@ -105,27 +132,43 @@ function App() {
             url="/list"></Link>
         </nav>
 
-        <Route path="/form">
-          <MusicElemForm
-            editId={editId}
-            type={formType}
-            onCreate={handleCreate}
-            onEdit={handleEdit}
-          />
-        </Route>
+        <Switch>
+          <Route path="/form">
+            <MusicElemForm
+              editId={editId}
+              type={formType}
+              onCreate={handleCreate}
+              onEdit={handleEdit}
+            />
+          </Route>
 
-        <Route path="/list">
-          {musicElems.map((elem) => {
-            return <MusicElem
-              key={elem.id}
-              id={elem.id}
-              title={elem.title}
-              img=""
-              onDelete={handleDelete}
-              onEdit={handleBeginEdit}
-            />;
-          })}
-        </Route>
+          <Route path="/list">
+            {musicElems.map((elem) => {
+              return <MusicElem
+                key={elem.id}
+                id={elem.id}
+                title={elem.title}
+                img=""
+                type="edit"
+                onDelete={handleDelete}
+                onEdit={handleBeginEdit}
+              />;
+            })}
+          </Route>
+
+          <Route path="/details/:id">
+            <MusicElemDetails
+              list={musicElems}
+              onCreateSong={handleCreateSong}
+              />
+          </Route>
+
+          <Route path="/404">
+            <Page404 />
+          </Route>
+
+          <Redirect to="/404" />
+        </Switch>
       </div>
     </HashRouter>
   );

@@ -1,15 +1,17 @@
 import * as React from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import './MusicElem.css';
 
 export interface MusicElemProps {
   id: number;
   img: string;
   title: string;
-  onDelete: (id: number) => void;
-  onEdit: (id: number) => void;
+  type: 'detail'|'edit';
+  onDelete?: (id: number) => void;
+  onEdit?: (id: number) => void;
 }
 
-const MusicElem: React.FC<MusicElemProps> = ({ id, img, title, onDelete, onEdit }) => {
+const MusicElem: React.FC<MusicElemProps> = ({ id, img, title, onDelete, onEdit, type }) => {
   // const { img, title } = props;
 
   // const img = props.img;
@@ -17,6 +19,7 @@ const MusicElem: React.FC<MusicElemProps> = ({ id, img, title, onDelete, onEdit 
 
   const [ color, setColor ] = React.useState( Math.floor(Math.random() * 255) );
   const colorStr = `rgb(200, 200, ${color})`;
+  const history = useHistory();
 
   const styles: React.CSSProperties = {
     backgroundColor: colorStr,
@@ -24,18 +27,29 @@ const MusicElem: React.FC<MusicElemProps> = ({ id, img, title, onDelete, onEdit 
   };
 
   const handleDelete: React.MouseEventHandler<HTMLButtonElement> = () => {
-    onDelete(id);
+    if(onDelete) {
+      onDelete(id);
+    }
   }
 
   const handleEdit: React.MouseEventHandler<HTMLButtonElement> = () => {
-    onEdit(id);
+    if(onEdit) {
+      onEdit(id);
+    }
+  }
+
+  const handleView: React.MouseEventHandler<HTMLButtonElement> = () => {
+    history.push(`/details/${id}`);
   }
 
   return (<article className="MusicElem"
     style={styles}>
     <h2>{title}</h2>
-    <button onClick={handleDelete}>delete</button>
-    <button onClick={handleEdit}>edit</button>
+    {type === 'edit' && <div>
+      <button onClick={handleView}>view</button>
+      {onDelete && <button onClick={handleDelete}>delete</button>}
+      {onEdit && <button onClick={handleEdit}>edit</button>}
+    </div>}
   </article>);
 }
 
