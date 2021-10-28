@@ -5,7 +5,8 @@
 }
 
 
-.MusicElemForm input {
+.MusicElemForm input,
+.MusicElemForm select {
   display: block;
 }
 

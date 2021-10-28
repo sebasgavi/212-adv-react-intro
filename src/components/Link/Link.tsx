@@ -6,14 +6,17 @@ interface LinkProps {
   text: string;
   active?: boolean;
   url: string;
+  color?: 'light'|'dark';
 }
 
 export const Link: React.FC<LinkProps> = (props) => {
+  const { url, text, color = 'dark' } = props;
+
   return <NavLink
-    className="Link"
+    className={`Link Link--${color}`}
     activeClassName="Link--active"
-    to={props.url}
+    to={url}
     >
-    {props.text}
+    {text}
   </NavLink>;
 }

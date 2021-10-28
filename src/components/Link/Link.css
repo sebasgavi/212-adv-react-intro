@@ -1,8 +1,15 @@
 .Link {
   font-family: sans-serif;
   padding: 12px 14px;
-  color: white;
   text-decoration: none;
+}
+
+.Link--light {
+  color: white;
+}
+
+.Link--dark {
+  color: black;
 }
 
 .Link--active {

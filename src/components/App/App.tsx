@@ -1,13 +1,19 @@
 import React from 'react';
 import './App.css';
 import { Link } from '../Link/Link';
-import MusicElem, { MusicElemProps } from '../MusicElem/MusicElem';
+import MusicElem from '../MusicElem/MusicElem';
 import MusicElemForm from '../MusicElemForm/MusicElemForm';
 import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
 import MusicElemDetails from '../MusicElemDetails/MusicElemDetails';
 import Page404 from '../Page404/Page404';
 import { MusicElemObj } from '../../types/MusicElemObj';
 import { SongElemObj } from '../../types/SongElemObj';
+import { AuthorObj } from '../../types/AuthorObj';
+import AuthorsList from '../AuthorsList/AuthorsList';
+import AuthorDetails from '../AuthorDetails/AuthorDetails';
+import { Button } from '@mui/material';
+import { ThemeProvider } from '@emotion/react';
+import { theme } from '../../utils/theme';
 
 function App() {
 
@@ -17,8 +23,9 @@ function App() {
   const [ musicElems, setMusicElems ] = React.useState<MusicElemObj[]>([
     {
       id: 0,
+      authorId: 0,
       img: 'adasdas',
-      title: 'Nuevo elemento',
+      title: 'Ching Chang Hon Chi',
       songs: [
         {
           id: 0,
@@ -27,14 +34,44 @@ function App() {
         }
       ]
     },
+    {
+      id: 1,
+      authorId: 0,
+      img: 'adasdas',
+      title: '一決高下(電吉他Remix版)',
+      songs: []
+    },
+    {
+      id: 2,
+      authorId: 1,
+      img: 'adasdas',
+      title: 'single ladies!',
+      songs: []
+    },
   ]);
 
-  const handleCreate = (newMusicElem: { img: string, title: string }) => {
+  const [ authors, setAuthors ] = React.useState<AuthorObj[]>([
+    {
+      id: 0,
+      name: 'Dehao Zhang'
+    },
+    {
+      id: 1,
+      name: 'Beyonce'
+    },
+    {
+      id: 2,
+      name: 'Stephanie'
+    },
+  ]);
+
+  const handleCreate = (newMusicElem: { img: string, title: string, authorId: number }) => {
     console.log('nuevo elemento!', newMusicElem);
 
     const arrayCopy = musicElems.slice(); // crear una copia del arreglo
     arrayCopy.push({ // agregamos el nuevo elemento con la información recibida
       id: Math.random(),
+      authorId: newMusicElem.authorId,
       img: newMusicElem.img,
       title: newMusicElem.title,
       songs: [],
@@ -118,18 +155,45 @@ function App() {
     setMusicElems(musicElemsCopy);
   }
 
-  return (
+  /**
+   * encontrar elemento interno con id
+   */
+  const songId = 0;
+  let song: SongElemObj|undefined = undefined;
+  musicElems.forEach(elem => {
+    elem.songs.forEach(songElem => {
+      if(songElem.id === songId){
+        song = songElem;
+      }
+    });
+  });
+
+  return (<ThemeProvider theme={theme}>
     <HashRouter>
       <div>
         <h2>Hola desde App</h2>
 
+        <Button variant="outlined" size="medium">
+          Medium
+        </Button>
+
+        <Button variant="contained" color="secondary" size="medium">
+          Medium
+        </Button>
+
         <nav className="App__nav">
           <Link
+            color="light"
             text="Form"
             url="/form" />
           <Link
+            color="light"
             text="List"
             url="/list"></Link>
+          <Link
+            color="light"
+            text="Authors"
+            url="/authors"></Link>
         </nav>
 
         <Switch>
@@ -139,6 +203,7 @@ function App() {
               type={formType}
               onCreate={handleCreate}
               onEdit={handleEdit}
+              authors={authors}
             />
           </Route>
 
@@ -163,6 +228,24 @@ function App() {
               />
           </Route>
 
+
+          <Route path="/authors" exact>
+            <AuthorsList
+              authors={authors}
+              />
+          </Route>
+
+          <Route path="/authors/:id">
+            <AuthorDetails
+              authors={authors}
+              musicElems={musicElems}
+              />
+          </Route>
+
+
+          <Route path="/songs/:id">
+          </Route>
+
           <Route path="/404">
             <Page404 />
           </Route>
@@ -171,7 +254,7 @@ function App() {
         </Switch>
       </div>
     </HashRouter>
-  );
+  </ThemeProvider>);
 }
 
 export default App;

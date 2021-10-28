@@ -5,5 +5,7 @@ export type MusicElemObj = {
   title: string;
   id: number;
 
+  authorId: number;
+
   songs: SongElemObj[];
 }

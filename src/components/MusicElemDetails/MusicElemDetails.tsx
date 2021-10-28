@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Redirect, Route, useParams } from 'react-router';
-import { Link } from 'react-router-dom';
 import { MusicElemObj } from '../../types/MusicElemObj';
 import { SongElemObj } from '../../types/SongElemObj';
+import { Link } from '../Link/Link';
 import MusicElem from '../MusicElem/MusicElem';
 import MusicElemDetailsSongForm from './MusicElemDetailsSongForm';
 
@@ -15,6 +15,12 @@ const MusicElemDetails: React.FC<MusicElemDetailsProps> = ({ list, onCreateSong 
   const { id: idString } = useParams<{ id: string }>();
   const id = parseFloat(idString);
 
+  /**
+   * usamos el método find del arreglo de elementos para encontrar
+   * el elemento que corresponde al id del parámetro de la ruta
+   * ejemplo: /details/0
+   *      Entre todos los elementos buscamos el que tiene id === 0
+   */
   const elem = list.find((elem) => {
     // return elem.id === parseInt(id);
     if(elem.id === id) {
@@ -48,11 +54,13 @@ const MusicElemDetails: React.FC<MusicElemDetailsProps> = ({ list, onCreateSong 
 
       <ol>
         {songs.map(songElem => {
-          return <li key={songElem.id}>{songElem.title} - {songElem.duration}</li>
+          return <li key={songElem.id}>
+            <Link url={`/songs/${songElem.id}`} text={`${songElem.title} - ${songElem.duration}`} />
+          </li>
         })}
       </ol>
 
-      <Link to={`/details/${id}/new-song`}>Add song</Link>
+      <Link url={`/details/${id}/new-song`} text="Add song"></Link>
     </Route>
 
     <Route path="/details/:id/new-song">

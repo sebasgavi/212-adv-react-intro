@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import './MusicElem.css';
 
 export interface MusicElemProps {
@@ -17,7 +17,7 @@ const MusicElem: React.FC<MusicElemProps> = ({ id, img, title, onDelete, onEdit,
   // const img = props.img;
   // const title = props.title;
 
-  const [ color, setColor ] = React.useState( Math.floor(Math.random() * 255) );
+  const [ color ] = React.useState( Math.floor(Math.random() * 255) );
   const colorStr = `rgb(200, 200, ${color})`;
   const history = useHistory();
 

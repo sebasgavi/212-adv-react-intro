@@ -1,15 +1,18 @@
+import { Button } from '@mui/material';
 import * as React from 'react';
 import { useHistory } from 'react-router';
+import { AuthorObj } from '../../types/AuthorObj';
 import './MusicElemForm.css';
 
 interface MusicElemFormProps {
   editId: number|null;
   type: 'create'|'edit';
-  onCreate: (newMusicElem: { title: string, img: string }) => void; // evento propio que se dispara al crear un elemento
+  onCreate: (newMusicElem: { title: string, img: string, authorId: number }) => void; // evento propio que se dispara al crear un elemento
   onEdit: (id: number, editMusicElem: { title: string }) => void; // evento propio que se dispara al crear un elemento
+  authors: AuthorObj[];
 }
 
-const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, onEdit }) => {
+const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, onEdit, authors }) => {
   const history = useHistory();
 
   // estado para guardar si el usuario ya intentó enviar el formulario, por defecto es falso
@@ -37,6 +40,12 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, o
     }
   }
 
+  // estado para guardar el valor del autor
+  const [ author, setAuthor ] = React.useState(0);
+  const handleAuthorChange: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
+    setAuthor(parseFloat(event.target.value));
+  }
+
   // boolean de validación
   const isTitleValid = title.length >= 5 && title.length <= 10;
   const isUrlValid = url.length >= 10;
@@ -52,11 +61,13 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, o
       // si el formulario es válido, llamamos al evento onCreate
       onCreate({
         img: url,
-        title: title
+        title: title,
+        authorId: author
       });
       setTitle('');
       setUrl('');
       setSubscribers('');
+      setAuthor(0);
       setFormSubmitted(false);
       history.push('/list');
     } else if (type === 'edit' && isTitleValid) {
@@ -101,6 +112,30 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, o
         <p className="MusicElemForm__error">Must have at least 100 subscribers</p>
       }
     </label>
+
+    <label>
+      Author
+      <select
+        onChange={handleAuthorChange}
+        value={author}
+        >
+        {authors.map(author => {
+          return <option
+            key={author.id}
+            value={author.id}
+            >
+            {author.name}
+          </option>
+        })}
+      </select>
+      {(formSubmitted && !isSubscribersValid) &&
+        <p className="MusicElemForm__error">Must have at least 100 subscribers</p>
+      }
+    </label>
+
+    <Button type="submit" variant="contained" color="secondary" size="medium">
+      Medium
+    </Button>
 
     <button>
       {type === 'create' ? 'Create new MusicElem' : 'Save changes'}
