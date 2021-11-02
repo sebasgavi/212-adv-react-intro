@@ -14,6 +14,7 @@ import AuthorDetails from '../AuthorDetails/AuthorDetails';
 import { Button } from '@mui/material';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '../../utils/theme';
+import { TagOption } from '../../types/TagOption';
 
 function App() {
 
@@ -64,6 +65,16 @@ function App() {
       name: 'Stephanie'
     },
   ]);
+
+  const [ tagOptions, setTagOptions ] = React.useState<TagOption[]>([
+    { label: 'test 1' },
+    { label: 'test 2' },
+    { label: 'Animals' }
+  ]);
+
+  const handleAddTagOption = (newTagOption: TagOption) => {
+    setTagOptions([ ...tagOptions, newTagOption ]);
+  }
 
   const handleCreate = (newMusicElem: { img: string, title: string, authorId: number }) => {
     console.log('nuevo elemento!', newMusicElem);
@@ -204,6 +215,8 @@ function App() {
               onCreate={handleCreate}
               onEdit={handleEdit}
               authors={authors}
+              tagOptions={tagOptions}
+              addTagOption={handleAddTagOption}
             />
           </Route>
 

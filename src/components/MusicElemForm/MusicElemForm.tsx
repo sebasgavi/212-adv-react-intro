@@ -1,7 +1,8 @@
-import { Button } from '@mui/material';
+import { Autocomplete, Button, TextField } from '@mui/material';
 import * as React from 'react';
 import { useHistory } from 'react-router';
 import { AuthorObj } from '../../types/AuthorObj';
+import { TagOption } from '../../types/TagOption';
 import './MusicElemForm.css';
 
 interface MusicElemFormProps {
@@ -10,9 +11,11 @@ interface MusicElemFormProps {
   onCreate: (newMusicElem: { title: string, img: string, authorId: number }) => void; // evento propio que se dispara al crear un elemento
   onEdit: (id: number, editMusicElem: { title: string }) => void; // evento propio que se dispara al crear un elemento
   authors: AuthorObj[];
+  addTagOption: (newTagOption: TagOption) => void;
+  tagOptions: TagOption[];
 }
 
-const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, onEdit, authors }) => {
+const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, onEdit, authors, addTagOption, tagOptions }) => {
   const history = useHistory();
 
   // estado para guardar si el usuario ya intentó enviar el formulario, por defecto es falso
@@ -44,6 +47,24 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, o
   const [ author, setAuthor ] = React.useState(0);
   const handleAuthorChange: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
     setAuthor(parseFloat(event.target.value));
+  }
+
+  // estado para guardar los tags
+  const [ tags, setTags ] = React.useState<TagOption[]>([]);
+  const handleTagsChange = (
+    event: React.SyntheticEvent<Element, Event>,
+    values: (TagOption|string)[]
+    ) => {
+    const transformed = values.map((value) => {
+      // si el valor es un string, quiere decir que el usurio está agregando una nueva opción
+      if(typeof value === 'string') {
+        const op = { label: value };
+        addTagOption(op); // agregamos la nueva opción a la lista general de opciones
+        return op;
+      }
+      return value;
+    });
+    setTags(transformed);
   }
 
   // boolean de validación
@@ -132,6 +153,21 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, o
         <p className="MusicElemForm__error">Must have at least 100 subscribers</p>
       }
     </label>
+
+    <Autocomplete
+      multiple
+      freeSolo
+      disablePortal
+      id="combo-box-demo"
+      options={tagOptions}
+      sx={{ width: 300 }}
+      renderInput={(params) => <TextField {...params} label="Tags" />}
+      onChange={handleTagsChange}
+      value={tags as any}
+      isOptionEqualToValue={(option, value) => {
+        return option.label === value.label;
+      }}
+    />
 
     <Button type="submit" variant="contained" color="secondary" size="medium">
       Medium
