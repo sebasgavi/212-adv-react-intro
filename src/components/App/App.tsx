@@ -3,7 +3,7 @@ import './App.css';
 import { Link } from '../Link/Link';
 import MusicElem from '../MusicElem/MusicElem';
 import MusicElemForm from '../MusicElemForm/MusicElemForm';
-import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, Redirect, useHistory } from 'react-router-dom';
 import MusicElemDetails from '../MusicElemDetails/MusicElemDetails';
 import Page404 from '../Page404/Page404';
 import { MusicElemObj } from '../../types/MusicElemObj';
@@ -11,12 +11,15 @@ import { SongElemObj } from '../../types/SongElemObj';
 import { AuthorObj } from '../../types/AuthorObj';
 import AuthorsList from '../AuthorsList/AuthorsList';
 import AuthorDetails from '../AuthorDetails/AuthorDetails';
-import { Button } from '@mui/material';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '../../utils/theme';
 import { TagOption } from '../../types/TagOption';
+import { Bar } from 'react-chartjs-2';
+import { getChartData } from '../../utils/getChartData';
 
 function App() {
+
+  const history = useHistory();
 
   const [ formType, setFormType ] = React.useState<'create' | 'edit'>('create');
   const [ editId, setEditId ] = React.useState<number|null>(null);
@@ -27,6 +30,7 @@ function App() {
       authorId: 0,
       img: 'adasdas',
       title: 'Ching Chang Hon Chi',
+      tags: ['test 1', 'test 2'],
       songs: [
         {
           id: 0,
@@ -40,6 +44,7 @@ function App() {
       authorId: 0,
       img: 'adasdas',
       title: '一決高下(電吉他Remix版)',
+      tags: [ 'test 1', 'Animals'],
       songs: []
     },
     {
@@ -47,6 +52,7 @@ function App() {
       authorId: 1,
       img: 'adasdas',
       title: 'single ladies!',
+      tags: ['Animals'],
       songs: []
     },
   ]);
@@ -72,11 +78,13 @@ function App() {
     { label: 'Animals' }
   ]);
 
+  const data = getChartData(musicElems);
+
   const handleAddTagOption = (newTagOption: TagOption) => {
     setTagOptions([ ...tagOptions, newTagOption ]);
   }
 
-  const handleCreate = (newMusicElem: { img: string, title: string, authorId: number }) => {
+  const handleCreate = (newMusicElem: { img: string, title: string, authorId: number, tags: string[] }) => {
     console.log('nuevo elemento!', newMusicElem);
 
     const arrayCopy = musicElems.slice(); // crear una copia del arreglo
@@ -85,6 +93,7 @@ function App() {
       authorId: newMusicElem.authorId,
       img: newMusicElem.img,
       title: newMusicElem.title,
+      tags: newMusicElem.tags,
       songs: [],
     });
 
@@ -103,6 +112,7 @@ function App() {
   const handleBeginEdit = (editId: number) => {
     setEditId(editId);
     setFormType('edit');
+    history.push('/form');
   }
 
   const handleEdit = (editId: number, editMusicElem: { title: string }) => {
@@ -127,6 +137,8 @@ function App() {
     }
 
     setMusicElems(musicElemsCopy);
+    setFormType('create');
+    setEditId(null);
   }
 
   const handleDelete = (deleteId: number) => {
@@ -180,93 +192,99 @@ function App() {
   });
 
   return (<ThemeProvider theme={theme}>
-    <HashRouter>
-      <div>
-        <h2>Hola desde App</h2>
+    <div>
+      <h2>Hola desde App</h2>
 
-        <Button variant="outlined" size="medium">
-          Medium
-        </Button>
+      <nav className="App__nav">
+        <Link
+          color="light"
+          text="Home"
+          url="/" />
+        <Link
+          color="light"
+          text="Form"
+          url="/form" />
+        <Link
+          color="light"
+          text="List"
+          url="/list"></Link>
+        <Link
+          color="light"
+          text="Authors"
+          url="/authors"></Link>
+      </nav>
 
-        <Button variant="contained" color="secondary" size="medium">
-          Medium
-        </Button>
+      <Switch>
+        <Route path="/form">
+          <MusicElemForm
+            musicElems={musicElems}
+            editId={editId}
+            type={formType}
+            onCreate={handleCreate}
+            onEdit={handleEdit}
+            authors={authors}
+            tagOptions={tagOptions}
+            addTagOption={handleAddTagOption}
+          />
+        </Route>
 
-        <nav className="App__nav">
-          <Link
-            color="light"
-            text="Form"
-            url="/form" />
-          <Link
-            color="light"
-            text="List"
-            url="/list"></Link>
-          <Link
-            color="light"
-            text="Authors"
-            url="/authors"></Link>
-        </nav>
+        <Route path="/list">
+          {musicElems.map((elem) => {
+            return <MusicElem
+              key={elem.id}
+              id={elem.id}
+              title={elem.title}
+              img=""
+              type="edit"
+              onDelete={handleDelete}
+              onEdit={handleBeginEdit}
+            />;
+          })}
+        </Route>
 
-        <Switch>
-          <Route path="/form">
-            <MusicElemForm
-              editId={editId}
-              type={formType}
-              onCreate={handleCreate}
-              onEdit={handleEdit}
-              authors={authors}
-              tagOptions={tagOptions}
-              addTagOption={handleAddTagOption}
+        <Route path="/details/:id">
+          <MusicElemDetails
+            list={musicElems}
+            onCreateSong={handleCreateSong}
             />
-          </Route>
-
-          <Route path="/list">
-            {musicElems.map((elem) => {
-              return <MusicElem
-                key={elem.id}
-                id={elem.id}
-                title={elem.title}
-                img=""
-                type="edit"
-                onDelete={handleDelete}
-                onEdit={handleBeginEdit}
-              />;
-            })}
-          </Route>
-
-          <Route path="/details/:id">
-            <MusicElemDetails
-              list={musicElems}
-              onCreateSong={handleCreateSong}
-              />
-          </Route>
+        </Route>
 
 
-          <Route path="/authors" exact>
-            <AuthorsList
-              authors={authors}
-              />
-          </Route>
+        <Route path="/authors" exact>
+          <AuthorsList
+            authors={authors}
+            />
+        </Route>
 
-          <Route path="/authors/:id">
-            <AuthorDetails
-              authors={authors}
-              musicElems={musicElems}
-              />
-          </Route>
+        <Route path="/authors/:id">
+          <AuthorDetails
+            authors={authors}
+            musicElems={musicElems}
+            />
+        </Route>
 
 
-          <Route path="/songs/:id">
-          </Route>
+        <Route path="/songs/:id">
+        </Route>
 
-          <Route path="/404">
-            <Page404 />
-          </Route>
+        <Route path="/404">
+          <Page404 />
+        </Route>
 
-          <Redirect to="/404" />
-        </Switch>
-      </div>
-    </HashRouter>
+        <Route path="/">
+          <Bar data={data} options={{
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+              legend: { display: false, },
+              title: { display: true, text: 'Tags Usage', },
+            },
+          }}/>
+        </Route>
+
+        <Redirect to="/404" />
+      </Switch>
+    </div>
   </ThemeProvider>);
 }
 

@@ -2,27 +2,33 @@ import { Autocomplete, Button, TextField } from '@mui/material';
 import * as React from 'react';
 import { useHistory } from 'react-router';
 import { AuthorObj } from '../../types/AuthorObj';
+import { MusicElemObj } from '../../types/MusicElemObj';
 import { TagOption } from '../../types/TagOption';
 import './MusicElemForm.css';
 
 interface MusicElemFormProps {
   editId: number|null;
+  musicElems: MusicElemObj[];
   type: 'create'|'edit';
-  onCreate: (newMusicElem: { title: string, img: string, authorId: number }) => void; // evento propio que se dispara al crear un elemento
+  onCreate: (newMusicElem: { title: string, img: string, authorId: number, tags: string[] }) => void; // evento propio que se dispara al crear un elemento
   onEdit: (id: number, editMusicElem: { title: string }) => void; // evento propio que se dispara al crear un elemento
   authors: AuthorObj[];
   addTagOption: (newTagOption: TagOption) => void;
   tagOptions: TagOption[];
 }
 
-const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, onEdit, authors, addTagOption, tagOptions }) => {
+const MusicElemForm: React.FC<MusicElemFormProps> = ({ musicElems, editId, type, onCreate, onEdit, authors, addTagOption, tagOptions }) => {
   const history = useHistory();
+  
+  const editElem = musicElems.find((elem) => {
+    return elem.id === editId;
+  });
 
   // estado para guardar si el usuario ya intentó enviar el formulario, por defecto es falso
   const [ formSubmitted, setFormSubmitted ] = React.useState(false);
 
   // estado para guardar el valor del input title
-  const [ title, setTitle ] = React.useState('');
+  const [ title, setTitle ] = React.useState(editElem?.title || '');
   const handleTitleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     setTitle(event.target.value);
   }
@@ -44,13 +50,18 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, o
   }
 
   // estado para guardar el valor del autor
-  const [ author, setAuthor ] = React.useState(0);
+  const [ author, setAuthor ] = React.useState(editElem?.authorId || 0);
   const handleAuthorChange: React.ChangeEventHandler<HTMLSelectElement> = (event) => {
     setAuthor(parseFloat(event.target.value));
   }
 
   // estado para guardar los tags
-  const [ tags, setTags ] = React.useState<TagOption[]>([]);
+  const initialTags = (editElem?.tags || []).map(tagString => {
+    return {
+      label: tagString
+    }
+  })
+  const [ tags, setTags ] = React.useState<TagOption[]>(initialTags);
   const handleTagsChange = (
     event: React.SyntheticEvent<Element, Event>,
     values: (TagOption|string)[]
@@ -80,10 +91,13 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, o
     if(type === 'create' && isTitleValid && isUrlValid) {
       console.log('valid');
       // si el formulario es válido, llamamos al evento onCreate
+
+      const tagsStrings = tags.map(obj => obj.label);
       onCreate({
         img: url,
         title: title,
-        authorId: author
+        authorId: author,
+        tags: tagsStrings,
       });
       setTitle('');
       setUrl('');
@@ -93,6 +107,7 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, o
       history.push('/list');
     } else if (type === 'edit' && isTitleValid) {
       onEdit(editId!, { title: title });
+      history.push('/list');
     } else {
       console.log('invalid');
     }
@@ -149,9 +164,6 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, o
           </option>
         })}
       </select>
-      {(formSubmitted && !isSubscribersValid) &&
-        <p className="MusicElemForm__error">Must have at least 100 subscribers</p>
-      }
     </label>
 
     <Autocomplete
@@ -170,12 +182,8 @@ const MusicElemForm: React.FC<MusicElemFormProps> = ({ editId, type, onCreate, o
     />
 
     <Button type="submit" variant="contained" color="secondary" size="medium">
-      Medium
-    </Button>
-
-    <button>
       {type === 'create' ? 'Create new MusicElem' : 'Save changes'}
-    </button>
+    </Button>
 
   </form>);
 }

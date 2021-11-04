@@ -4,6 +4,7 @@ export type MusicElemObj = {
   img: string;
   title: string;
   id: number;
+  tags: string[];
 
   authorId: number;
 
