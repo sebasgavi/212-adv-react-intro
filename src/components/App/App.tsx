@@ -16,6 +16,7 @@ import { theme } from '../../utils/theme';
 import { TagOption } from '../../types/TagOption';
 import { Bar } from 'react-chartjs-2';
 import { getChartData } from '../../utils/getChartData';
+import { useLocalStorage } from '../../utils/useLocalStorage';
 
 function App() {
 
@@ -24,7 +25,7 @@ function App() {
   const [ formType, setFormType ] = React.useState<'create' | 'edit'>('create');
   const [ editId, setEditId ] = React.useState<number|null>(null);
 
-  const [ musicElems, setMusicElems ] = React.useState<MusicElemObj[]>([
+  const [ musicElems, setMusicElems ] = useLocalStorage<MusicElemObj[]>('musicElems', [
     {
       id: 0,
       authorId: 0,
